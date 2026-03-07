@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"os"
+	"sso/internal/app"
 	"sso/internal/config"
 	"sso/internal/lib/logger/handlers/slogpretty"
 )
@@ -15,8 +16,15 @@ const (
 
 func main() {
 	cfg := config.MustLoad()
+
 	log := setapLogger(cfg.Env)
+
 	log.Info("Starting application", slog.Any("config", cfg))
+
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	application.GRPSrv.MustRun()
+
 }
 func setapLogger(env string) *slog.Logger {
 	var log *slog.Logger
